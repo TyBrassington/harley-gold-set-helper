@@ -31,6 +31,16 @@ cd harley-gold-set-helper
 Then in Claude Code or Codex: `/audit-contrast-set wildchat_03c3f36c981b387b`, or ask
 for "the next set in harley_msv1_forward_v1_wave4_v6".
 
+## Paste mode (no lab access)
+
+The review app's copy button emits one JSON record per set (`candidate_id`,
+`prompts.T/A/H/S/P`, `H_plan`, `S_declared_realised_dimensions`, ...). A human
+reviewer pastes it into Claude Code or Codex while verifying the set by hand.
+With the skill installed, the agent reads the bundled `rubric_v6.md`, judges
+from the pasted prompts, and replies with the verdict JSON plus per-role
+findings. It does not run `render`, `record`, or `next`, and nothing is written.
+The human enters the decision in the app.
+
 ## Where the data lives
 
 The helper reads finished v6 run roots (`variants/final/approved_contrast_sets.jsonl`,
