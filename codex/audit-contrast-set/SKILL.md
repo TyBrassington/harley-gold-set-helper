@@ -10,7 +10,7 @@ description: >
   Works one set per call so a reviewer
   (Astra, Codex, Fable, or a person) can step through a run root incrementally.
 metadata:
-  version: "0.4.0"
+  version: "0.4.1"
   pipeline_version: "v6"
 allowed-tools: Read, Bash(python *), Bash(python3 *), Bash(/localhome/wgb/.venvs/bll-mining/bin/python *)
 ---
@@ -117,14 +117,20 @@ situation:
   planner's claims to be checked, not evidence. A dimension absent from
   `S_declared_realised_dimensions` was not claimed by the plan: do not list it
   as missing; you may note it as unclaimed if S plainly realises it anyway.
-- If a field the rubric needs is absent (a dimension's quote, the decisive fact,
-  a `human_verify` block the preamble alludes to), say it is absent. Do not
-  infer or invent it.
+- The packet omits SIMILARITY ratios and the S-to-T Jaccard by design, and it
+  carries `human_verify` and `repair_rounds` only when they exist. Never list
+  any of these as missing; their absence is not an evidence gap. Report missing
+  evidence only when something the packet should carry is absent: a prompt, a
+  realised dimension's quote, H_plan's decisive fact, or `human_verify`
+  concerns the preamble alludes to but does not include. Say it is absent; do
+  not infer or invent it. When nothing is missing, write no missing-evidence
+  line at all.
 - Reply with the verdict JSON (the rubric's Output fields, same closed tag list
   and dimension names, PASS iff no tags) in one ```json block, then at most one
   line per role and one for the anchor, quoting the offending phrase in the
-  source language with a gloss. Resolve each `human_verify` concern as
-  `real_defect` or `false_alarm`. End with the decision on its own line:
+  source language with a gloss. If the record carries `human_verify` concerns,
+  resolve each as `real_defect` or `false_alarm`; otherwise say nothing about
+  them. End with the decision on its own line:
   `DECISION: gold`, `DECISION: gold, relabel family to <family>`, or
   `DECISION: reject`. The human enters it in the app. A family relabel is done
   there and changes nothing else, so a better-fitting family is never a reason
