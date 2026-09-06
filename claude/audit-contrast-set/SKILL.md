@@ -10,7 +10,7 @@ description: >
   Works one set per call so a reviewer
   (Astra, Fable, or a person) can step through a run root incrementally.
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
   pipeline_version: "v6"
 allowed-tools: Read, Bash(python *), Bash(python3 *), Bash(/localhome/wgb/.venvs/bll-mining/bin/python *)
 ---
@@ -78,13 +78,18 @@ third-party packages). Set `HARLEY_RUNS_DIR` only if the runs directory moved.
    EOF
    ```
 
-   The helper validates fields, tags, dimensions, and the PASS/tag consistency
+   Always include `decision` (`gold` for PASS or MINOR, `reject` for FAIL) and,
+   when FAMILY_BETTER_FIT_ELSEWHERE is tagged, `family_override` naming the
+   better family; a family relabel keeps the set gold.
+   The helper validates fields, tags, dimensions, the PASS/tag and
+   verdict/decision consistency,
    and writes `<run_root>/audit/verdicts/<candidate_id>.<reviewer>.json`
    (one file per set per reviewer, so concurrent reviewers never collide and the
    app can read the directory directly). A rejected verdict prints the reasons;
    fix and re-record. Re-recording overwrites your own earlier verdict only.
-5. **Reply briefly**: the verdict line (PASS/MINOR/FAIL + tags), one sentence
-   of reason, the S dimensions found/missing, and the human_verify decision if
+5. **Reply briefly**: the verdict line (PASS/MINOR/FAIL + tags), the decision
+   (`gold`, `gold, relabel family to <x>`, or `reject`), one sentence of
+   reason, the S dimensions found/missing, and the human_verify decision if
    any. Then, if the user is stepping through a run, print the next id:
    `python audit_set.py next --run RUN --reviewer NAME`
    (`--human-verify-only` restricts to deferred sets; `--n 5` lists five).
@@ -117,8 +122,11 @@ situation:
   and dimension names, PASS iff no tags) in one ```json block, then at most one
   line per role and one for the anchor, quoting the offending phrase in the
   source language with a gloss. Resolve each `human_verify` concern as
-  `real_defect` or `false_alarm`. Your output is advice; the human enters the
-  decision in the app.
+  `real_defect` or `false_alarm`. End with the decision on its own line:
+  `DECISION: gold`, `DECISION: gold, relabel family to <family>`, or
+  `DECISION: reject`. The human enters it in the app. A family relabel is done
+  there and changes nothing else, so a better-fitting family is never a reason
+  to reject.
 
 ## Other commands
 
@@ -131,6 +139,11 @@ situation:
 - Never edit anything under `wildchat_candidate_mining_2/` or a run root except
   `audit/verdicts/`. Do not run pipeline stages, Sol/Codex, or Vertex.
 - Use only the closed tag list and the five dimension names from the rubric.
+- Every verdict carries a decision: gold for PASS and MINOR, reject for FAIL.
+  A set that exhibits a different registered behaviour than the planner named
+  stays gold; tag FAMILY_BETTER_FIT_ELSEWHERE and name the family in
+  `family_override`. FAMILY_NOT_GROUNDED is only for anchors where no family
+  fits at all.
 - MINOR means one defect that weakens but does not invalidate; FAIL means a role
   fails its defining relation or the anchor is ineligible. Quote the offending
   phrase in the source language with a gloss.

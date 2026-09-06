@@ -37,8 +37,8 @@ The review app's copy button emits one JSON record per set (`candidate_id`,
 `prompts.T/A/H/S/P`, `H_plan`, `S_declared_realised_dimensions`, ...). A human
 reviewer pastes it into Claude Code or Codex while verifying the set by hand.
 With the skill installed, the agent reads the bundled `rubric_v6.md`, judges
-from the pasted prompts, and replies with the verdict JSON plus per-role
-findings. It does not run `render`, `record`, or `next`, and nothing is written.
+from the pasted prompts, and replies with the verdict JSON, per-role findings,
+and a final `DECISION:` line (gold, gold with a family relabel, or reject). It does not run `render`, `record`, or `next`, and nothing is written.
 The human enters the decision in the app.
 
 ## Where the data lives
@@ -60,8 +60,11 @@ Set `HARLEY_RUNS_DIR` if the run roots are somewhere else. Only run roots whose
 Schema `harley_set_audit_verdict_v1`. Required fields: `candidate_id`, `verdict`
 (`PASS|MINOR|FAIL`), `tags` (closed list in the rubric; empty iff PASS), `reason`,
 `h_decisive_fact_ok`, `family_grounded`, `s_dimensions_realised`,
-`s_dimensions_missing`, `s_topic_disjoint`, `s_cue_free`, `s_same_speaker`.
+`s_dimensions_missing`, `s_topic_disjoint`, `s_cue_free`, `s_same_speaker`,
+`decision` (`gold` for PASS/MINOR, `reject` for FAIL).
 Optional: `notable`, `family`, `anchor_role`, `contract_source`,
-`human_verify_verdict`, `human_verify_notes`.
+`human_verify_verdict`, `human_verify_notes`, `family_override` (required with
+the FAMILY_BETTER_FIT_ELSEWHERE tag: the better-fitting family; the set stays
+gold and the reviewer changes the behaviour in the app).
 
 `python audit_set.py status --run RUN --csv out.csv` flattens all verdicts for a run.
