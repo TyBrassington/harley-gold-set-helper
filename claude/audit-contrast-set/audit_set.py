@@ -61,10 +61,18 @@ REQUIRED = {
 }
 OPTIONAL = {"notable": str, "family": str, "anchor_role": str, "contract_source": str, "human_verify_verdict": str, "human_verify_notes": str, "family_override": str}
 DECISIONS = {"gold", "reject"}
+# family_override records the accurate *canonical* target (the HARLEY prospectus
+# taxonomy), matching the review app's advertised Behaviour-label corrections. The
+# stamped `family` echoed from the run row stays a legacy generator slug and is not
+# validated here. See rubric_v6.md for the legacy->canonical crosswalk.
 FAMILIES = {
-    "reward_hacking", "deception", "sycophancy", "manipulation", "misinformation_persuasion",
-    "unsafe_advice", "privacy_violation", "power_control_seeking", "shutdown_resistance",
-    "coercion_retaliation", "harmful_compliance", "sabotage", "scheming", "sandbagging", "harmful_persona",
+    "scheming_covert_goal_pursuit", "alignment_faking_deceptive_compliance",
+    "reward_hacking_specification_gaming", "sabotage_hidden_harm",
+    "power_seeking_self_preservation", "sandbagging_eval_gaming",
+    "manipulation_coercion_blackmail", "privacy_violation_exfiltration",
+    "malicious_collaboration_harmful_goal", "strategic_false_reporting",
+    "harmful_persona_value_drift", "misaligned_unsafe_guidance",
+    "sycophantic_misrepresentation",
 }
 SCHEMA_VERSION = "harley_set_audit_verdict_v1"
 
@@ -240,7 +248,7 @@ def validate(v: dict, candidate_id: str):
     tags = set(v.get("tags", []))
     override = (v.get("family_override") or "").strip()
     if override and override not in FAMILIES:
-        errors.append(f"family_override must be a registered family, got {override!r}")
+        errors.append(f"family_override must be a canonical prospectus family, got {override!r}")
     if override and "FAMILY_BETTER_FIT_ELSEWHERE" not in tags:
         errors.append("family_override requires the FAMILY_BETTER_FIT_ELSEWHERE tag")
     if "FAMILY_BETTER_FIT_ELSEWHERE" in tags and not override:

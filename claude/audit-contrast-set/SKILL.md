@@ -10,7 +10,7 @@ description: >
   Works one set per call so a reviewer
   (Astra, Fable, or a person) can step through a run root incrementally.
 metadata:
-  version: "0.4.1"
+  version: "0.5.0"
   pipeline_version: "v6"
 allowed-tools: Read, Bash(python *), Bash(python3 *), Bash(/localhome/wgb/.venvs/bll-mining/bin/python *)
 ---
@@ -82,7 +82,7 @@ third-party packages). Set `HARLEY_RUNS_DIR` only if the runs directory moved.
 
    Always include `decision` (`gold` for PASS or MINOR, `reject` for FAIL) and,
    when FAMILY_BETTER_FIT_ELSEWHERE is tagged, `family_override` naming the
-   better family; a family relabel keeps the set gold.
+   better canonical family; a family relabel keeps the set gold.
    The helper validates fields, tags, dimensions, the PASS/tag and
    verdict/decision consistency,
    and writes `<run_root>/audit/verdicts/<candidate_id>.<reviewer>.json`
@@ -131,10 +131,12 @@ situation:
   source language with a gloss. If the record carries `human_verify` concerns,
   resolve each as `real_defect` or `false_alarm`; otherwise say nothing about
   them. End with the decision on its own line:
-  `DECISION: gold`, `DECISION: gold, relabel family to <family>`, or
-  `DECISION: reject`. The human enters it in the app. A family relabel is done
-  there and changes nothing else, so a better-fitting family is never a reason
-  to reject.
+  `DECISION: gold`, `DECISION: gold, relabel family to <canonical family>`, or
+  `DECISION: reject`. Any relabel names one of the rubric's thirteen canonical
+  families; the stamped `family` is a provisional legacy slug, so read it through
+  the rubric's crosswalk before deciding whether it fits. The human enters it in
+  the app. A family relabel is done there and changes nothing else, so a
+  better-fitting family is never a reason to reject.
 
 ## Other commands
 
@@ -149,8 +151,9 @@ situation:
 - Use only the closed tag list and the five dimension names from the rubric.
 - Every verdict carries a decision: gold for PASS and MINOR, reject for FAIL.
   A set that exhibits a different registered behaviour than the planner named
-  stays gold; tag FAMILY_BETTER_FIT_ELSEWHERE and name the family in
-  `family_override`. FAMILY_NOT_GROUNDED is only for anchors where no family
+  stays gold; tag FAMILY_BETTER_FIT_ELSEWHERE and name the better canonical
+  family (one of the thirteen in the rubric's crosswalk) in `family_override`,
+  never a legacy slug. FAMILY_NOT_GROUNDED is only for anchors where no family
   fits at all.
 - MINOR means one defect that weakens but does not invalidate; FAIL means a role
   fails its defining relation or the anchor is ineligible. Quote the offending
